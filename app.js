@@ -15,11 +15,9 @@ app.use("/api", indexRouter);
 // 함수를 실행해서 서버 역할을 하는 app 객체 생성
 // 이 app 객체를 사용해 라우팅, 미들웨어 설정, 서버 실행 등을 할 수 있다
 
-
 // MongoDB와 연결
-const mongoURI = MONGODB_URI_PROD;  //  =>   Atlas 클라우드 DB URI
-// const mongoURI = `mongodb://localhost:27017/todo-demo`;   =>  로컬 MongoDB URI 
-
+const mongoURI = MONGODB_URI_PROD; //  =>   Atlas 클라우드 DB URI
+// const mongoURI = `mongodb://localhost:27017/todo-demo`;   =>  로컬 MongoDB URI
 
 mongoose
   .connect(mongoURI, { useNewUrlParser: true })
@@ -33,7 +31,12 @@ mongoose
     console.log("DB Connection Fail", err);
   });
 
-app.listen(5050, () => {
-  console.log("server on 5050");
+const PORT = process.env.PORT || 5050;
+  app.listen(PORT, () => {
+  console.log(`server on ${PORT}`);
 });
+
+// app.listen(5050, () => {
+//   console.log("server on 5050");
+// });
 // 포트 번호 5050으로 오는 건 다 여기로 오게 하겠다
