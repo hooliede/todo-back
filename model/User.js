@@ -21,20 +21,44 @@ const userSchema = Schema(
   },
   { timestamps: true }
 );
-// 어떤 로직이든 무조건 특정 정보를 빼고 가져오게 하는 방법
-userSchema.methods.toJSON = function() { // 위에 스키마 모델은 객체인데 스키마를 json 형태로 가져오게 하는 코드
-  // return this  return this 즉 스키마를 return하라고 했으니 스키마가 json 구조로 오게 된다
+
+
+
+
+
+// 토큰 생성이든 비밀번호 제거든 유저 데이터 자체에 대한 조치를 취하는 로직이라 User 모델(User.js)에 있어야 한다
+
+
+
+
+
+// password 제거 로직
+// 유저 데이터를 클라이언트에게 보내기 위해서는 객체 형태의 user 데이터를 json 형태로 바꿔야 하고 그때 호출이 되는 메서드이다
+// Controller에서 따로 호출할 필요 없음 res.json(user) 할 때 항상 실행되고 -> password 필드는 제거된 상태로 응답
+userSchema.methods.toJSON = function() { 
   const obj = this._doc;
+  // json으로 바꿨을 때 객체의 _doc에 user의 정보가 들어있다
   delete obj.password;
   return obj;
-  // back -> front로 갈 때 항상 실행이 되고 그래서 무조건 password가 제거가 됨
 }
 
-// token이 유저와 관련이 있으니 User.js에 그리고 다른 곳에서도 쓰일 수 있으면 여기에서 만들자라 흐음...
-userSchema.methods.generateToken = function () {            // 이거는 토큰의 유통기한
-  const token = jwt.sign({ _id: this._id }, JWT_SECRET_KEY, {expiresIn:'1d'}); // token을 만들건데 뭘 기준으로 만들거냐고 하면 이제 각각 정보에 "_id"라는 게 있잖아 이 값을 기준으로 만들거고 
-  return token;                                              // this는 이제 이 유저의 id 값이라는 뜻 그런데 왜 return을 사용할까
+
+// token 만들기 메서드
+// 토큰은 유저의 고유 정보(여기선 _id)를 기반으로 만들기 때문에 User 모델에 두는 게 좋다
+// 로그인, 이메일 인증, 비밀번호 변경 등 여러 기능에서 토큰이 사용되기 때문에 재사용성을 높이기 위해서 User 모델에서 만든다
+// Controller에 토큰을 두면 각 기능마다 토큰을 만드는 로직이 반복된다 -> 그래서 User 모델에서 한 번만 정의해서 사용한다
+userSchema.methods.generateToken = function () {            
+  const token = jwt.sign({ _id: this._id }, JWT_SECRET_KEY, {expiresIn:'1d'}); 
+  return token;                                              // expiresIn은 토큰의 유통기한
 };
+// JWT_SECRET_KEY: 토큰을 암호화할 때 사용할 비밀키이며 .env에 저장하여 사용
+
+
+// this 정리
+// userSchema.methods는 모든 유저 인스턴스가 공통으로 갖는 메서드를 정의한다
+// 하지만 실제 호출은 Controller 등에서 User 모델로부터 가져온 특정 인스턴스(특정 유저의 데이터)가 담당한다.
+// 즉 this는 본인을 호출한 인스턴스인 현재 작업중인 유저 데이터이다
+
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
