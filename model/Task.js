@@ -15,6 +15,11 @@ const taskSchema = Schema(
       type: Boolean,
       required: true,
     },
+    author: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User"       // User 컬렉션을 참고
+    }
   },
   { timestamps: true }
   // 생성/수정 시간을 자동으로 기록하는 명령어

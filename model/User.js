@@ -39,6 +39,9 @@ userSchema.methods.toJSON = function() {
   const obj = this._doc;
   // json으로 바꿨을 때 객체의 _doc에 user의 정보가 들어있다
   delete obj.password;
+  delete obj.createdAt;
+  delete obj.updatedAt;
+  delete obj.__v;
   return obj;
 }
 

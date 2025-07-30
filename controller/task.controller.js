@@ -25,8 +25,9 @@ const taskController = {};
 // 할일 만드는 controller
 taskController.createTask = async (req, res) => {
   try {
+    const { userId } = req
     const { task, isComplete } = req.body;                                    // 클라이언트가 POST로 보낸 요청 데이터(req.body) 가져오기
-    const newTask = new Task({ task, isComplete });                           // 받아온 데이터를 Task(스키마 기반)를 사용하여 newTask에 데이터를 넣어 새로운 객체 생성
+    const newTask = new Task({ task, isComplete, author: userId });                           // 받아온 데이터를 Task(스키마 기반)를 사용하여 newTask에 데이터를 넣어 새로운 객체 생성
     await newTask.save();                                                     // MongoDB에 newTask 저장(비동기)
     res.status(200).json({ status: "success", data: newTask });               // json 형식으로 성공 응답 보내기 / .status(200): HTTP 상태  코드(성공) 설정
   } catch (err) {                                                                 
@@ -38,7 +39,7 @@ taskController.createTask = async (req, res) => {
 // 할일 가져오는 controller
 taskController.getTask = async (req, res) => {
   try {
-    const taskList = await Task.find({}).select("-__v");                      // 비동기 처리로 데이터를 배열 형식으로 가져오기, 모든 데이터를 다 가져옴(find 뒤에 조건x)
+    const taskList = await Task.find({}).populate("author"); // author(FK)를 가지고 컬렉션 join같은 함수(실제 DB의 조인은 아닌 비슷한)  /  비동기 처리로 데이터를 배열 형식으로 가져오기, 모든 데이터를 다 가져옴(find 뒤에 조건x)
     res.status(200).json({ status: "success", data: taskList });              // json 형태로 배열 데이터 전달
   } catch (err) {
     res.status(400).json({ status: "fail", error: err });

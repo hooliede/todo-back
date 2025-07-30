@@ -61,4 +61,21 @@ userController.loginWithEmail = async (req, res) => {
   }
 };
 
+
+
+userController.getUser = async (req, res) => {
+  try {
+    const { userId } = req;
+    // console.log("userId값", userId);
+    const user = await User.findById(userId); // await을 안 붙여서 그랬네 ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 참나 이자식 aa... stress
+    // console.log("_id를 기준으로 찾아온 데이터", user)
+    if (!user) {
+      throw new Error("can not find user");
+    }
+    res.status(200).json({ status: "success", user });
+  } catch (error) {
+    res.status(400).json({ status: "fail", message: error.message });
+  }
+};
+
 module.exports = userController;
