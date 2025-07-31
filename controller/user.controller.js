@@ -9,6 +9,13 @@ userController.createUser = async (req, res) => {
   try {
     // 1. front에서 보낸 데이터 받기
     const { email, name, password } = req.body;
+
+    if (!password || password.trim().length === 0) {
+      return res.status(400).json({message: "비밀번호는 필수입니다."});
+    }
+
+
+
     // 2. req.body에 있는 email이 DB에 있는지 확인(중복 회원가입 방지)
     const user = await User.findOne({ email: email });
     // DB에 있으면
